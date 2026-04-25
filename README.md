@@ -17,7 +17,7 @@ A personal portfolio website built with HTML, CSS, and JavaScript.
 
 ## Live Demo
 
-Add your GitHub Pages link here later.
+https://shreyaaaaaak.github.io/portfolio-website/
 
 ## Author
 
