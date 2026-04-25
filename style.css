@@ -87,3 +87,20 @@ a {
 a:hover {
   text-decoration: underline;
 }
+.hero-buttons {
+  margin-top: 20px;
+}
+
+.hero-buttons .btn {
+  margin: 8px;
+}
+
+.secondary-btn {
+  background: white;
+  color: #2563eb;
+  border: 2px solid #2563eb;
+}
+
+.secondary-btn:hover {
+  background: #eff6ff;
+}
