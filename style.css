@@ -79,3 +79,11 @@ ul {
 .btn:hover {
   background: #1d4ed8;
 }
+a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
