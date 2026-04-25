@@ -17,8 +17,8 @@ A personal portfolio website built with HTML, CSS, and JavaScript.
 
 ## Live Demo
 
-
 https://shreyaaaaaak.github.io/Portfolio-website/
+
 ## Author
 
 Shreya Kaushik
