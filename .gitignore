@@ -1,2 +1,4 @@
-.DS_Store
-Thumbs.db
+.venv/
+__pycache__/
+data/habits.db
+*.pyc

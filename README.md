@@ -1,24 +1,39 @@
-# My Portfolio
+# Momentum Habit Tracker
 
-A personal portfolio website built with HTML, CSS, and JavaScript.
+A compact Flask habit tracker with:
 
-## Features
+- weekly targets
+- one-click daily check-ins
+- current and longest streaks
+- a simple dashboard with progress cards
+- SQLite storage with no external database setup
 
-- About Me section
-- Projects section
-- Contact section
-- Clean responsive layout
+## Run locally
 
-## Tech Stack
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python app.py
+```
 
-- HTML
-- CSS
-- JavaScript
+Open `http://127.0.0.1:5000`.
 
-## Live Demo
+## Project structure
 
-https://shreyaaaaaak.github.io/Portfolio-website/
+- `app.py` contains the Flask routes.
+- `data.py` handles SQLite storage and streak calculations.
+- `templates/index.html` contains the page template.
+- `static/style.css` contains the visual design.
+- `data/habits.db` is created automatically on first run.
 
-## Author
+## Main actions
 
-Shreya Kaushik
+- Add a habit with a category and weekly target.
+- Check a habit in once per day.
+- Delete a habit when you no longer want to track it.
+
+## Notes
+
+- The app prevents duplicate check-ins for the same habit on the same day.
+- SQLite is built into Python, so only Flask is required as a dependency.

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Momentum Habit Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="page-glow page-glow-left"></div>
+    <div class="page-glow page-glow-right"></div>
+
+    <main class="page">
+        <section class="hero panel">
+            <div class="hero-copy">
+                <p class="eyebrow">Momentum Habit Tracker</p>
+                <h1>Track daily habits, protect your streaks, and see your week at a glance.</h1>
+                <p class="intro">
+                    Add a habit, check it off once per day, and let the dashboard handle the streak math.
+                    This version is intentionally simple: one page, SQLite storage, and no extra setup beyond Flask.
+                </p>
+                <a class="hero-link" href="#new-habit">Add a habit</a>
+            </div>
+
+            <div class="hero-callout">
+                <p class="callout-label">Strongest current streak</p>
+                <h2>{{ dashboard.summary.best_habit_name }}</h2>
+                <p class="callout-value">{{ dashboard.summary.best_habit_streak }} day run</p>
+            </div>
+        </section>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <section class="flash-stack">
+            {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </section>
+        {% endif %}
+        {% endwith %}
+
+        <section class="stats-grid">
+            <article class="stat-card panel">
+                <p class="stat-label">Total Habits</p>
+                <h2>{{ dashboard.summary.total_habits }}</h2>
+            </article>
+            <article class="stat-card panel">
+                <p class="stat-label">Checked In Today</p>
+                <h2>{{ dashboard.summary.checked_in_today }}</h2>
+            </article>
+            <article class="stat-card panel">
+                <p class="stat-label">Active Streaks</p>
+                <h2>{{ dashboard.summary.active_streaks }}</h2>
+            </article>
+            <article class="stat-card panel">
+                <p class="stat-label">Last 7 Days</p>
+                <h2>{{ dashboard.summary.weekly_checkins }}</h2>
+            </article>
+        </section>
+
+        <section class="workspace-grid">
+            <section class="panel form-panel" id="new-habit">
+                <div class="section-heading">
+                    <p class="eyebrow">New Habit</p>
+                    <h2>Add something you want to repeat.</h2>
+                </div>
+
+                <form class="habit-form" action="{{ url_for('create_habit_view') }}" method="post">
+                    <label>
+                        Habit name
+                        <input type="text" name="name" maxlength="80" placeholder="Example: Morning walk" required>
+                    </label>
+
+                    <label>
+                        Category
+                        <select name="category">
+                            {% for category in category_choices %}
+                            <option value="{{ category }}">{{ category }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+
+                    <label>
+                        Target days per week
+                        <select name="target_days">
+                            {% for target in range(1, 8) %}
+                            <option value="{{ target }}" {% if target == 4 %}selected{% endif %}>{{ target }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+
+                    <button type="submit" class="button button-primary">Create habit</button>
+                </form>
+            </section>
+
+            <section class="panel focus-panel">
+                <div class="section-heading">
+                    <p class="eyebrow">Today</p>
+                    <h2>Where to spend attention.</h2>
+                </div>
+
+                {% if dashboard.focus_habits %}
+                <div class="focus-list">
+                    {% for habit in dashboard.focus_habits %}
+                    <article class="focus-item">
+                        <div>
+                            <p class="focus-name">{{ habit.name }}</p>
+                            <p class="focus-meta">{{ habit.current_streak }} day streak · {{ habit.week_count }}/{{ habit.target_days }} this week</p>
+                        </div>
+                        <span class="focus-state {% if habit.completed_today %}focus-done{% endif %}">
+                            {% if habit.completed_today %}Done{% else %}Open{% endif %}
+                        </span>
+                    </article>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-inline">
+                    <p>No habits yet. Start with one small daily action and build from there.</p>
+                </div>
+                {% endif %}
+            </section>
+        </section>
+
+        <section class="panel habits-panel">
+            <div class="section-heading">
+                <p class="eyebrow">Dashboard</p>
+                <h2>Your current habits</h2>
+            </div>
+
+            {% if dashboard.habits %}
+            <div class="habit-grid">
+                {% for habit in dashboard.habits %}
+                <article class="habit-card">
+                    <div class="card-top">
+                        <span class="badge">{{ habit.category }}</span>
+                        <span class="target">{{ habit.target_days }} days/week</span>
+                    </div>
+
+                    <h3>{{ habit.name }}</h3>
+                    <p class="streak">{{ habit.current_streak }} day current streak</p>
+
+                    <div class="progress-block">
+                        <div class="progress-copy">
+                            <span>This week</span>
+                            <strong>{{ habit.week_count }}/{{ habit.target_days }}</strong>
+                        </div>
+                        <div class="progress-bar" aria-hidden="true">
+                            <span style="width: {{ habit.progress_percent }}%"></span>
+                        </div>
+                        <p class="target-message">{{ habit.target_message }}</p>
+                    </div>
+
+                    <div class="week-strip" aria-label="Last seven days">
+                        {% for day in habit.week_cells %}
+                        <div class="week-day {% if day.completed %}week-day-done{% endif %}" title="{{ day.date_label }}">
+                            <span>{{ day.label }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <dl class="details">
+                        <div>
+                            <dt>Longest streak</dt>
+                            <dd>{{ habit.longest_streak }} days</dd>
+                        </div>
+                        <div>
+                            <dt>Last check-in</dt>
+                            <dd>{{ habit.last_checkin }}</dd>
+                        </div>
+                    </dl>
+
+                    <div class="habit-actions">
+                        <form action="{{ url_for('check_in_habit', habit_id=habit.id) }}" method="post">
+                            <button type="submit" class="button button-primary" {% if habit.completed_today %}disabled{% endif %}>
+                                {% if habit.completed_today %}Checked in today{% else %}Check in today{% endif %}
+                            </button>
+                        </form>
+
+                        <form action="{{ url_for('delete_habit_view', habit_id=habit.id) }}" method="post">
+                            <button type="submit" class="button button-ghost">Delete</button>
+                        </form>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <h3>No habits yet.</h3>
+                <p>Add your first habit to start tracking streaks and weekly consistency.</p>
+            </div>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>
